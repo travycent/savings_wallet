@@ -1,6 +1,6 @@
-# savings_wallet
+# Savings Wallet
 
-# Saving is Key for individuals which enables them prepare for the future where they have an emergency or in need of a huge lump sum of cash # to sort an issue.
+# Saving is Key for individuals which enables them prepare for the future where they have an emergency or in need of a huge lump sum of cash to sort an issue.
 
 # One of the biggest challenge is that saving by nature is hard due to low cashflow and other unforeseen circumstances. This platform is 
 # designed to allow individuals save as they spend however little it maybe as this will create a Savings culture and also reduce the burden 
