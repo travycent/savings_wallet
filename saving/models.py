@@ -17,6 +17,7 @@ class percentage_limits_model(models.Model):
     class Meta:
         verbose_name_plural = "Percentage Limits"
     def __str__(self):
-        return self.percentage
+        return str(self.percentage)
+
     
     

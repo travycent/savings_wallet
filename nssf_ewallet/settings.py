@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 
+#Variable to change incase of deployment to webserver
+live_deploy = True
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -22,11 +25,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-fdypzi^qbc=e_z%=sf%i005u5&5fs5=ii@b9)&!8bho4e^%y!j'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Custom User  Model
+AUTH_USER_MODEL = "profiles.UsersModel"
+# Set the Backends to be used
+AUTHENTICATION_BACKENDS = [
+    'profiles.auth_backend.CustomAuthBackend',
+    "django.contrib.auth.backends.ModelBackend", 
 
-ALLOWED_HOSTS = []
-
+]
 
 # Application definition
 
@@ -37,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'saving',
+    'profiles'
 ]
 
 MIDDLEWARE = [
@@ -73,12 +81,39 @@ WSGI_APPLICATION = 'nssf_ewallet.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+
+"""
+Manage the Database Configs and Allowed Hosts base on Live_deploy Mode
+"""
+if live_deploy == False:
+    DEBUG = False
+    ALLOWED_HOSTS = ['*']
+    DATABASES = {
+        'default': 
+        {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': '',
+            'USER': '',
+            'PASSWORD': '',
+            'HOST': '',
+            'PORT': '',
+        }
     }
-}
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+elif live_deploy == True:
+    DEBUG = True
+    ALLOWED_HOSTS = ['*']
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
