@@ -20,3 +20,9 @@ from django.urls import path
 urlpatterns = [
     path('admin/', admin.site.urls),
 ]
+#A function to change the default Text in the DJango Admin Portal
+def change_admin_default_settings():
+    admin.site.site_header = 'YolloSave Portal'# default: "Django Administration"
+    admin.site.index_title = 'Features area'   # default: "Site administration"
+    admin.site.site_title = 'YolloSave Portal' # default: "Django site admin"
+change_admin_default_settings()
