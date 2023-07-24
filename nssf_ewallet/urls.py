@@ -15,10 +15,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path,include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    #Profiles APIs
+    path('api/', include('saving.urls')),
 ]
 #A function to change the default Text in the DJango Admin Portal
 def change_admin_default_settings():
