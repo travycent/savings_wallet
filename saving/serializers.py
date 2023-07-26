@@ -13,3 +13,23 @@ class TransactionTypeSerializer(serializers.ModelSerializer):
             instance=self.Meta.model(**validated_data)
             instance.save()
             return instance
+class PercentageLimitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = percentage_limits_model
+        fields = ('percentage_id', 'percentage','created_on')
+        percentage_id = serializers.IntegerField()
+        percentage = serializers.FloatField()
+        def create(self, validated_data):
+            instance=self.Meta.model(**validated_data)
+            instance.save()
+            return instance
+class FrequencySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = frequency_model
+        fields = ('frequency_id', 'frequency','created_on')
+        frequency_id = serializers.IntegerField()
+        frequency = serializers.FloatField()
+        def create(self, validated_data):
+            instance=self.Meta.model(**validated_data)
+            instance.save()
+            return instance
