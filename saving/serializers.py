@@ -3,6 +3,7 @@
 """
 from rest_framework import serializers
 from .models import transaction_types_model,percentage_limits_model,frequency_model,wallet_model,savings_preference_model,transactions_model,savings_target_model
+from profiles.models import UsersModel
 #Transaction Types Serializer
 class TransactionTypeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -48,3 +49,16 @@ class WalletSerializer(serializers.ModelSerializer):
         instance=self.Meta.model(**validated_data)
         instance.save()
         return instance
+# Transactions Serializer
+class UserTransactionSerializer(serializers.ModelSerializer):
+    transaction_id = serializers.IntegerField(read_only=True)
+    user_email = serializers.SerializerMethodField()
+    transaction_type = serializers.ReadOnlyField(source='transaction_type_name.transaction_type_name')
+    # transaction_type_name = serializers.CharField(source='transaction_type_name.transaction_type_name')
+    class Meta:
+        model = transactions_model
+        fields = '__all__'
+        # fields = ['transaction_id', 'transaction_type_name','transaction_amount' ]
+    def get_user_email(self, obj):
+        if obj.user is not None:
+            return obj.user.email  

@@ -9,7 +9,7 @@ urlpatterns = [
     path('frequency/<int:id>/', views.FrequencyApi.as_view(), name='frequecy_detail'),
     path('frequency/', views.FrequencyApi.as_view(), name='frequency'),
     # path('get-customer-wallets/',views.get_customer_wallet,name="get_customer_wallet"),
-    path('get-customer-wallet/<str:userId>',views.get_customer_wallet),
-    path('customer-wallet/<str:userId>', views.CustomerWalletApi.as_view(), name='Customer'),
-    
+    path('customer-wallet/',views.get_customer_wallet),
+    path('customer-wallet/<str:userId>/',views.get_customer_wallet),
+    path('customer-transactions/<str:userId>/',views.get_customer_transactions),   
 ]
