@@ -52,6 +52,7 @@ class WalletSerializer(serializers.ModelSerializer):
 # Transactions Serializer
 class UserTransactionSerializer(serializers.ModelSerializer):
     transaction_id = serializers.IntegerField(read_only=True)
+    transaction_amount = serializers.FloatField()
     user_email = serializers.SerializerMethodField()
     transaction_type = serializers.ReadOnlyField(source='transaction_type_name.transaction_type_name')
     # transaction_type_name = serializers.CharField(source='transaction_type_name.transaction_type_name')
@@ -61,4 +62,9 @@ class UserTransactionSerializer(serializers.ModelSerializer):
         # fields = ['transaction_id', 'transaction_type_name','transaction_amount' ]
     def get_user_email(self, obj):
         if obj.user is not None:
-            return obj.user.email  
+            return obj.user.email 
+    # Create Data
+    def create(self, validated_data):
+        instance=self.Meta.model(**validated_data)
+        instance.save()
+        return instance 

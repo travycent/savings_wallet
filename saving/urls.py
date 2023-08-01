@@ -12,4 +12,5 @@ urlpatterns = [
     path('customer-wallet/',views.get_customer_wallet),
     path('customer-wallet/<str:userId>/',views.get_customer_wallet),
     path('customer-transactions/<str:userId>/',views.get_customer_transactions),   
+    path('create-customer-transaction/<str:userId>/',views.create_customer_transaction), 
 ]
