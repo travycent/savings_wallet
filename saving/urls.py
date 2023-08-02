@@ -13,4 +13,8 @@ urlpatterns = [
     path('customer-wallet/<str:userId>/',views.get_customer_wallet),
     path('customer-transactions/<str:userId>/',views.get_customer_transactions),   
     path('create-customer-transaction/<str:userId>/',views.create_customer_transaction), 
+    path('get-customer-saving-preferences/<str:userId>/',views.get_customer_savings_preference), 
+    path('create-customer-saving-preferences/<str:userId>/',views.create_customer_savings_preference), 
+
+    
 ]

@@ -68,3 +68,21 @@ class UserTransactionSerializer(serializers.ModelSerializer):
         instance=self.Meta.model(**validated_data)
         instance.save()
         return instance 
+# Prefernces Serializer
+class UserSavingsPreferenceSerializer(serializers.ModelSerializer):
+    saving_preference_id = serializers.IntegerField(read_only=True)
+    user_email = serializers.SerializerMethodField()
+    transaction_type = serializers.ReadOnlyField(source='transaction_type_name.transaction_type_name')
+    percentage_value = serializers.ReadOnlyField(source='percentage.percentage')
+    frequency_value = serializers.ReadOnlyField(source='frequency.frequency')
+    class Meta:
+        model = savings_preference_model
+        fields = '__all__'
+    def get_user_email(self, obj):
+        if obj.user is not None:
+            return obj.user.email 
+    # Create Data
+    def create(self, validated_data):
+        instance=self.Meta.model(**validated_data)
+        instance.save()
+        return instance 

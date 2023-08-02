@@ -46,7 +46,7 @@ class walletsAdmin(admin.ModelAdmin):
 # Savings Preference
 class savingsPreferenceAdmin(admin.ModelAdmin):
     #Specify data to be displayed in the list
-    list_display= ('saving_preference_id','user_full_name','transaction_type_name','percentage','frequency','preference_update_date')
+    list_display= ('saving_preference_id','user_full_name','transaction_type_name','percentage','frequency','savings_preference_start_date','savings_preference_end_date','preference_update_date')
     # Filter Data
     list_filter = ('preference_update_date',)
     # Search Data

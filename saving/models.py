@@ -84,6 +84,8 @@ class savings_preference_model(models.Model):
     transaction_type_name=models.ForeignKey(transaction_types_model,on_delete=models.SET_NULL,blank=True,null=True)
     percentage=models.ForeignKey(percentage_limits_model,on_delete=models.SET_NULL,blank=True,null=True)
     frequency=models.ForeignKey(frequency_model,on_delete=models.SET_NULL,blank=True,null=True)
+    savings_preference_start_date= models.DateField()
+    savings_preference_end_date= models.DateField()
     preference_update_date= models.DateTimeField(auto_now_add=True) 
     class Meta:
         verbose_name_plural = "Saving Preferences"
