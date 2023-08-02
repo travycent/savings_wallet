@@ -140,12 +140,17 @@ class transactions_counter_model(models.Model):
         return str(self.transaction_id)
 # Savings Target Model
 class savings_target_model(models.Model):
+    STATUS_CHOICES = (
+        ("Closed", "Closed"),
+        ("Active", "Active"),
+    )
     savings_target_id=models.AutoField(primary_key=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     savings_target_amount=models.FloatField(default=0.0)
     completion_percentage=models.FloatField(default=0.0)
     savings_start_date= models.DateField()
     savings_end_date= models.DateField()
+    savings_target_status=models.CharField(default="Closed",max_length=10, choices=STATUS_CHOICES)
     savings_target_date= models.DateTimeField(auto_now_add=True) 
     class Meta:
         verbose_name_plural = 'Savings Target'

@@ -460,7 +460,114 @@ def create_customer_savings_preference(request,userId=""):
             'status_code': status_code,
             'message': message,
         }
-        return Response(response,status=status_code)          
+        return Response(response,status=status_code)   
+@api_view (['POST'])
+def update_customer_savings_preference(request,userId=""):
+    """
+        Args:
+            request (HTTP): Allow URLS
+            user (any): Email for a Specific User
+
+        Returns:
+            HTTP Response
+    """
+    if not userId or userId =="":
+        status_code = status.HTTP_400_BAD_REQUEST
+        message = "UserId is Required"
+        response = {
+            'success': False,
+            'status_code': status_code,
+            'message': message,
+        }
+        return Response(response,status=status_code)  
+    try:
+        # Get User ID
+        user =  custom_backend.get_user_id_by_email(userId).pk
+        # Extract Fields
+        saving_preference_id = functions.is_empty(request.data.get('saving_preference_id'),"saving_preference_id") and functions.is_int(request.data.get('saving_preference_id'),"saving_preference_id")
+        frequency = functions.is_empty(request.data.get('frequency'),"frequency") and functions.is_int(request.data.get('frequency'),"frequency")
+        percentage = functions.is_empty(request.data.get('percentage'),"percentage") and functions.is_int(request.data.get('percentage'),"percentage")
+        transaction_type_name = functions.is_empty(request.data.get('transaction_type_name'),"transaction_type_name") and functions.is_int(request.data.get('transaction_type_name'),"transaction_type_name")
+        savings_preference_start_date = functions.is_empty(request.data.get('savings_preference_start_date'),"savings_preference_start_date") and functions.is_date(request.data.get('savings_preference_start_date'),"savings_preference_start_date")
+        savings_preference_end_date = functions.is_empty(request.data.get('savings_preference_end_date'),"savings_preference_end_date") and functions.is_date(request.data.get('savings_preference_end_date'),"savings_preference_end_date")  
+        functions.is_date_greater(savings_preference_start_date,savings_preference_end_date)
+        queryset = savings_preference_model.objects.filter(saving_preference_id=saving_preference_id).first()
+
+        data = {
+            'user': user,
+            'saving_preference_id' : saving_preference_id,
+            'frequency': frequency,
+            'percentage' : percentage,
+            'transaction_type_name': transaction_type_name,
+            'savings_preference_start_date' : savings_preference_start_date,
+            'savings_preference_end_date' : savings_preference_end_date,
+        }
+        item=serializers.UserSavingsPreferenceSerializer(queryset,data=data)
+        if item.is_valid():
+
+            new_item=item.save()
+            if new_item:
+                status_code = status.HTTP_200_OK
+                response = {
+                    'success' : 'True',
+                    'status_code' : status_code,
+                    'message': 'Record Updated successfully',
+                }
+                return Response(response,status=status_code) 
+        
+    except Exception as e:
+        status_code = status.HTTP_400_BAD_REQUEST
+        message = "Sorry, there was an error: {}".format(str(e))
+        response = {
+            'success': False,
+            'status_code': status_code,
+            'message': message,
+        }
+        return Response(response,status=status_code)
+@api_view(['DELETE'])
+def delete_customer_savings_preference(request, savings_preference_id):
+    try:
+        # Get the instance to delete based on the savings_preference_id
+        instance = savings_preference_model.objects.get(saving_preference_id=savings_preference_id)
+        if instance:
+            # Delete the instance using the serializer's delete method
+            serializer = serializers.UserSavingsPreferenceSerializer()
+            serializer.delete(instance)
+            status_code = status.HTTP_204_NO_CONTENT
+            response = {
+                'success': 'True',
+                'status_code': status_code,
+                'message': 'Record Deleted successfully',
+            }
+            return Response(response, status=status_code)
+        else:
+            status_code = status.HTTP_404_NOT_FOUND
+            response = {
+                'success': False,
+                'status_code': status_code,
+                'message': 'Record not found',
+            }
+            return Response(response, status=status_code)
+    # Handle Item Does Not Exist Exceptiom
+    except savings_preference_model.DoesNotExist:
+        status_code = status.HTTP_404_NOT_FOUND
+        response = {
+            'success': False,
+            'status_code': status_code,
+            'message': 'Record not found',
+        }
+        return Response(response, status=status_code)
+    # Handle the Bad Request Format Exception
+    except Exception as e:
+        status_code = status.HTTP_400_BAD_REQUEST
+        message = "Sorry, there was an error: {}".format(str(e))
+        response = {
+            'success': False,
+            'status_code': status_code,
+            'message': message,
+        }
+        return Response(response, status=status_code)
+                
 
                 
 
