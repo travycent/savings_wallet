@@ -451,6 +451,16 @@ def create_customer_savings_preference(request,userId=""):
                     'message': 'Record Created successfully',
                 }
                 return Response(response,status=status_code) 
+        else:
+            # Handle validation errors if the data is invalid
+            status_code = status.HTTP_400_BAD_REQUEST
+            message = item.errors
+            response = {
+                'success': False,
+                'status_code': status_code,
+                'message': message,
+            }
+            return Response(response, status=status_code)
         
     except Exception as e:
         status_code = status.HTTP_400_BAD_REQUEST
@@ -567,7 +577,222 @@ def delete_customer_savings_preference(request, savings_preference_id):
             'message': message,
         }
         return Response(response, status=status_code)
-                
+@api_view (['GET'])
+def get_customer_savings_target(request, userId = ""):
+    if not userId or userId =="":
+        status_code = status.HTTP_400_BAD_REQUEST
+        message = "UserId is Required"
+        response = {
+            'success': False,
+            'status_code': status_code,
+            'message': message,
+        }
+        return Response(response,status=status_code) 
+    try:
+        # Get User ID
+        user =  custom_backend.get_user_id_by_email(userId).pk
+        queryset = savings_target_model.objects.filter(user=user).order_by('-savings_end_date')
+        status_code = status.HTTP_200_OK
+        serializer_class = serializers.UserSavingTargetSerializer(queryset, many=True)
+        response = {
+            'success' : 'True',
+            'status_code' : status_code,
+            'data': serializer_class.data,
+        }
+        return Response(response,status=status_code) 
+        
+    except Exception as e:
+        status_code = status.HTTP_400_BAD_REQUEST
+        message = "Sorry, there was an error: {}".format(str(e))
+        response = {
+            'success': False,
+            'status_code': status_code,
+            'message': message,
+        }
+        return Response(response,status=status_code) 
+                  
+@api_view (['Post'])
+def create_customer_savings_target(request, userId = ""):
+    """
+        Args:
+            request (HTTP): Allow URLS
+            user (any): Email for a Specific User
 
+        Returns:
+            HTTP Response
+    """
+    if not userId or userId =="":
+        status_code = status.HTTP_400_BAD_REQUEST
+        message = "UserId is Required"
+        response = {
+            'success': False,
+            'status_code': status_code,
+            'message': message,
+        }
+        return Response(response,status=status_code)
+    try:
+        # Get User ID
+        user =  custom_backend.get_user_id_by_email(userId).pk   
+        savings_target_amount = functions.is_empty(request.data.get('savings_target_amount'),"savings_target_amount") and functions.is_float(request.data.get('savings_target_amount'),"savings_target_amount")
+        savings_start_date = functions.is_empty(request.data.get('savings_start_date'),"savings_start_date") and functions.is_date(request.data.get('savings_start_date'),"savings_start_date")
+        savings_end_date = functions.is_empty(request.data.get('savings_end_date'),"savings_end_date") and functions.is_date(request.data.get('savings_end_date'),"savings_end_date")  
+        functions.is_date_greater(savings_start_date,savings_end_date)
+        functions.does_not_have_running_target()
+        data = {
+            'user': user,
+            'savings_target_amount': savings_target_amount,
+            'savings_start_date' : savings_start_date,
+            'savings_end_date': savings_end_date,
+        }
+        item=serializers.UserSavingTargetSerializer(data=data)
+        if item.is_valid():
+
+            new_item=item.save()
+            # new_item=1
+            if new_item:
+                status_code = status.HTTP_201_CREATED
+                response = {
+                    'success' : 'True',
+                    'status_code' : status_code,
+                    'message': 'Record Created successfully',
+                }
+                return Response(response,status=status_code) 
+        else:
+            # Handle validation errors if the data is invalid
+            status_code = status.HTTP_400_BAD_REQUEST
+            message = item.errors
+            response = {
+                'success': False,
+                'status_code': status_code,
+                'message': message,
+            }
+            return Response(response, status=status_code)
+        
+    except Exception as e:
+        status_code = status.HTTP_400_BAD_REQUEST
+        message = "Sorry, there was an error: {}".format(str(e))
+        response = {
+            'success': False,
+            'status_code': status_code,
+            'message': message,
+        }
+        return Response(response,status=status_code)
+                 
+@api_view (['Post'])
+def update_customer_savings_target(request, userId = ""):
+    """
+        Args:
+            request (HTTP): Allow URLS
+            user (any): Email for a Specific User
+
+        Returns:
+            HTTP Response
+    """
+    if not userId or userId =="":
+        status_code = status.HTTP_400_BAD_REQUEST
+        message = "UserId is Required"
+        response = {
+            'success': False,
+            'status_code': status_code,
+            'message': message,
+        }
+        return Response(response,status=status_code)
+    try:
+        # Get User ID
+        user =  custom_backend.get_user_id_by_email(userId).pk   
+        savings_target_id = functions.is_empty(request.data.get('savings_target_id'),"savings_target_id") and functions.is_int(request.data.get('savings_target_id'),"savings_target_id")
+        savings_target_amount = functions.is_empty(request.data.get('savings_target_amount'),"savings_target_amount") and functions.is_float(request.data.get('savings_target_amount'),"savings_target_amount")
+        savings_start_date = functions.is_empty(request.data.get('savings_start_date'),"savings_start_date") and functions.is_date(request.data.get('savings_start_date'),"savings_start_date")
+        savings_end_date = functions.is_empty(request.data.get('savings_end_date'),"savings_end_date") and functions.is_date(request.data.get('savings_end_date'),"savings_end_date")  
+        functions.is_date_greater(savings_start_date,savings_end_date)
+        # functions.does_not_have_running_target()
+        queryset = savings_target_model.objects.filter(savings_target_id=savings_target_id).first()
+
+        data = {
+            'user': user,
+            'savings_target_id' : savings_target_id,
+            'savings_target_amount': savings_target_amount,
+            'savings_start_date' : savings_start_date,
+            'savings_end_date': savings_end_date,
+        }
+        item=serializers.UserSavingTargetSerializer(queryset,data=data)
+        if item.is_valid():
+
+            new_item=item.save()
+            # new_item=1
+            if new_item:
+                status_code = status.HTTP_200_OK
+                response = {
+                    'success' : 'True',
+                    'status_code' : status_code,
+                    'message': 'Record Updated successfully',
+                }
+                return Response(response,status=status_code) 
+        else:
+            # Handle validation errors if the data is invalid
+            status_code = status.HTTP_400_BAD_REQUEST
+            message = item.errors
+            response = {
+                'success': False,
+                'status_code': status_code,
+                'message': message,
+            }
+            return Response(response, status=status_code)
+        
+    except Exception as e:
+        status_code = status.HTTP_400_BAD_REQUEST
+        message = "Sorry, there was an error: {}".format(str(e))
+        response = {
+            'success': False,
+            'status_code': status_code,
+            'message': message,
+        }
+        return Response(response,status=status_code)
+@api_view(['DELETE'])
+def delete_customer_savings_target(request, savings_target_id):
+    try:
+        # Get the instance to delete based on the savings_preference_id
+        instance = savings_target_model.objects.get(savings_target_id=savings_target_id)
+        if instance:
+            # Delete the instance using the serializer's delete method
+            serializer = serializers.UserSavingTargetSerializer()
+            serializer.delete(instance)
+            status_code = status.HTTP_204_NO_CONTENT
+            response = {
+                'success': 'True',
+                'status_code': status_code,
+                'message': 'Record Deleted successfully',
+            }
+            return Response(response, status=status_code)
+        else:
+            status_code = status.HTTP_404_NOT_FOUND
+            response = {
+                'success': False,
+                'status_code': status_code,
+                'message': 'Record not found',
+            }
+            return Response(response, status=status_code)
+    # Handle Item Does Not Exist Exceptiom
+    except savings_target_model.DoesNotExist:
+        status_code = status.HTTP_404_NOT_FOUND
+        response = {
+            'success': False,
+            'status_code': status_code,
+            'message': 'Record not found',
+        }
+        return Response(response, status=status_code)
+    # Handle the Bad Request Format Exception
+    except Exception as e:
+        status_code = status.HTTP_400_BAD_REQUEST
+        message = "Sorry, there was an error: {}".format(str(e))
+        response = {
+            'success': False,
+            'status_code': status_code,
+            'message': message,
+        }
+        return Response(response, status=status_code)
+      
+                
+      
                 
 

@@ -70,7 +70,6 @@ class UserTransactionSerializer(serializers.ModelSerializer):
         return instance 
 # Prefernces Serializer
 class UserSavingsPreferenceSerializer(serializers.ModelSerializer):
-    saving_preference_id = serializers.IntegerField()
     user_email = serializers.SerializerMethodField()
     transaction_type = serializers.ReadOnlyField(source='transaction_type_name.transaction_type_name')
     percentage_value = serializers.ReadOnlyField(source='percentage.percentage')
@@ -101,4 +100,30 @@ class UserSavingsPreferenceSerializer(serializers.ModelSerializer):
     # Delete Data
     def delete(self,instance):
         instance.delete()
+# Savings Target Serializer
+class UserSavingTargetSerializer(serializers.ModelSerializer):
+    user_email = serializers.SerializerMethodField()
+    class Meta:
+        model = savings_target_model
+        fields = '__all__'
+    # Return User Email
+    def get_user_email(self, obj):
+        if obj.user is not None:
+            return obj.user.email
+    def create(self, validated_data):
+        instance=self.Meta.model(**validated_data)
+        instance.save()
+        return instance
+    # Update Data
+    def update(self, instance, validated_data):
+        # Update the fields of the existing instance with the validated data
+        instance.savings_target_amount = validated_data.get('savings_target_amount', instance.savings_target_amount)
+        instance.savings_start_date = validated_data.get('savings_start_date', instance.savings_start_date)
+        instance.savings_end_date = validated_data.get('savings_end_date', instance.savings_end_date)
+        instance.save()
+        return instance
+    # Delete Data
+    def delete(self,instance):
+        instance.delete()
+    
     

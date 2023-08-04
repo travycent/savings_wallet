@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from dateutil import parser
 from datetime import date,datetime
+from saving.models import savings_target_model
 def is_empty(value,name=""):
     if value =="":
         raise ValidationError("{} is a required field".format(str(name)))
@@ -29,4 +30,12 @@ def is_date_greater(from_date,to_date):
         return True
     else:
         raise ValidationError("Both Dates should be greater than today's Date")
+def does_not_have_running_target():
+    queryset = savings_target_model.objects.filter(savings_end_date__gte=date.today())
+    if queryset.exists():
+        raise ValidationError("You already have a running Target. Please wait for it to elapse before creating another")
+    else:
+        return True
+
+ 
             

@@ -16,7 +16,13 @@ urlpatterns = [
     path('get-customer-saving-preferences/<str:userId>/',views.get_customer_savings_preference), 
     path('create-customer-saving-preferences/<str:userId>/',views.create_customer_savings_preference), 
     path('update-customer-saving-preferences/<str:userId>/',views.update_customer_savings_preference), 
-    path('delete-customer-saving-preferences/<int:savings_preference_id>/',views.delete_customer_savings_preference), 
+    path('delete-customer-saving-preferences/<int:savings_preference_id>/',views.delete_customer_savings_preference),
+    path('get-customer-saving-target/<str:userId>/',views.get_customer_savings_target),
+    path('create-customer-saving-target/<str:userId>/',views.create_customer_savings_target),
+    path('update-customer-saving-target/<str:userId>/',views.update_customer_savings_target),
+    path('delete-customer-saving-target/<int:savings_target_id>/',views.delete_customer_savings_target),
+
+     
 
     
 ]

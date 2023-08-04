@@ -99,7 +99,7 @@ class savingsTargetAdmin(admin.ModelAdmin):
     # Exclude some fields from django Admin input
     exclude = ('completion_percentage',)
     #Specify data to be displayed in the list
-    list_display= ('savings_target_id','user_full_name','savings_target_amount','completion_percentage','savings_start_date','savings_end_date','savings_target_date')
+    list_display= ('savings_target_id','user_full_name','savings_target_amount','completion_percentage','savings_start_date','savings_end_date','savings_target_status','savings_target_date')
     # Filter Data
     list_filter = ('savings_start_date','savings_end_date','savings_target_date',)
     # Search Data
