@@ -3,7 +3,7 @@ version: '3.7'
 services:
   web:
     build:
-      context: ./savings_wallet
+      context: .
     command: gunicorn my_app.wsgi:application -w 4 -b 0.0.0.0:9000
     volumes:
       - ./savings_wallet:/app
@@ -15,7 +15,7 @@ services:
   nginx:
     image: nginx:alpine
     ports:
-      - "9000:9000"
+      - "9000:80"
     volumes:
       - ./nginx-config:/etc/nginx/conf.d
     depends_on:
