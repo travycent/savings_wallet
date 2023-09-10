@@ -21,4 +21,4 @@ COPY . /app/
 EXPOSE 9000
 
 # Define the command to run your application (e.g., Gunicorn)
-CMD ["gunicorn", "my_app.wsgi:application", "--bind", "0.0.0.0:9000"]
+CMD ["gunicorn", "nssf_ewallet.wsgi:application", "--bind", "0.0.0.0:9000"]
