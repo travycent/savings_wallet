@@ -5,7 +5,7 @@ services:
     container_name: savings_wallet 
     build:
       context: .
-    command: gunicorn my_app.wsgi:application -w 4 -b 0.0.0.0:9000
+    command: gunicorn nssf_ewallet.wsgi:application -w 4 -b 0.0.0.0:9000
     volumes:
       - ./savings_wallet:/app
     environment:

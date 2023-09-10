@@ -15,8 +15,15 @@ COPY requirements.txt /app/
 RUN pip install -r requirements.txt
 
 # Copy the current directory contents into the container at /app
-COPY . /app/
+COPY . .
+# Copy the entrypoint script into the container
+COPY entrypoint.sh /app/entrypoint.sh
 
+# Make the entrypoint script executable
+RUN chmod +x /app/entrypoint.sh
+
+# Set the entry point to the custom script
+ENTRYPOINT ["/app/entrypoint.sh"]
 # Expose the port that the application will run on (you may change this)
 EXPOSE 9000
 
