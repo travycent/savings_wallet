@@ -3,10 +3,10 @@ version: '3.7'
 services:
   web:
     build:
-      context: ./nssf_ewallet
+      context: ./savings_wallet
     command: gunicorn my_app.wsgi:application -w 4 -b 0.0.0.0:9000
     volumes:
-      - ./nssf_ewallet:/app
+      - ./savings_wallet:/app
     environment:
       - DEBUG=True
       - SECRET_KEY=django-insecure-fdypzi^qbc=e_z%=sf%i005u5&5fs5=ii@b9)&!8bho4e^%y!j
