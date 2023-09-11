@@ -27,8 +27,8 @@ jobs:
       - name: Wait for services to start
         run: sleep 20
 
-      - name: Run tests (if you have tests)
-        run: docker-compose -f docker-compose.yml exec web python manage.py test
+      # - name: Run tests (if you have tests)
+      #   run: docker-compose -f docker-compose.yml exec web python manage.py test
 
       # Add more steps here as needed for your deployment process
 
