@@ -3,11 +3,9 @@ version: '3.9'
 services:
   web:
     build: .
-    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:9000"
     volumes:
       - .:/app
-    ports:
-      - "9000:9000"
   nginx:
     image: nginx:alpine
     ports:
@@ -16,28 +14,3 @@ services:
       - ./nginx-config:/etc/nginx/conf.d
     depends_on:
       - web
-# version: '3.7'
-
-# services:
-#   web:
-#     container_name: savings_wallet 
-#     build:
-#       context: .
-#     command: gunicorn nssf_ewallet.wsgi:application -w 4 -b 0.0.0.0:9000
-#     volumes:
-#       - ./savings_wallet:/app
-#     environment:
-#       - DEBUG=True
-#       - SECRET_KEY=django-insecure-fdypzi^qbc=e_z%=sf%i005u5&5fs5=ii@b9)&!8bho4e^%y!j
-#       - DATABASE_URL=sqlite:///db.sqlite3  # Use SQLite as the database
-
-  # nginx:
-  #   image: nginx:alpine
-  #   ports:
-  #     - "9000:80"
-  #   volumes:
-  #     - ./nginx-config:/etc/nginx/conf.d
-  #   depends_on:
-  #     - web
-
-
