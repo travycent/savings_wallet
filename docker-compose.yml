@@ -8,6 +8,14 @@ services:
       - .:/app
     ports:
       - "9000:9000"
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "9000:80"
+    volumes:
+      - ./nginx-config:/etc/nginx/conf.d
+    depends_on:
+      - web
 # version: '3.7'
 
 # services:
@@ -23,13 +31,13 @@ services:
 #       - SECRET_KEY=django-insecure-fdypzi^qbc=e_z%=sf%i005u5&5fs5=ii@b9)&!8bho4e^%y!j
 #       - DATABASE_URL=sqlite:///db.sqlite3  # Use SQLite as the database
 
-#   nginx:
-#     image: nginx:alpine
-#     ports:
-#       - "9000:80"
-#     volumes:
-#       - ./nginx-config:/etc/nginx/conf.d
-#     depends_on:
-#       - web
+  # nginx:
+  #   image: nginx:alpine
+  #   ports:
+  #     - "9000:80"
+  #   volumes:
+  #     - ./nginx-config:/etc/nginx/conf.d
+  #   depends_on:
+  #     - web
 
 
