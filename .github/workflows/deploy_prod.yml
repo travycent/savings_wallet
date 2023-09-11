@@ -13,8 +13,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Deploy to Server 1
+
+      - name: Stop and remove existing containers
+        run: docker-compose -f docker-compose.yml down
+      
+      - name: Deploy to Production Server 
         uses: easingthemes/ssh-deploy@main
+        
         env:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY_PROD }}
           REMOTE_HOST: ${{ secrets.HOST_DNS_PROD }}
