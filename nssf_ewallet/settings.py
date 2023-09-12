@@ -26,6 +26,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-fdypzi^qbc=e_z%=sf%i005u5&5fs5=ii@b9)&!8bho4e^%y!j'
+JWT_CONF = {
+    'TOKEN_LIFETIME_HOURS': 5
+}
 
 # Custom User  Model
 AUTH_USER_MODEL = "profiles.UsersModel"
