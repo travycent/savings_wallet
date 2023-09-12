@@ -167,7 +167,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         
-        #'profiles.authentication.JWTAuthentication',
+        # 'profiles.authentication.JWTAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 }

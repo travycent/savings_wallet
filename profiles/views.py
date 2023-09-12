@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 #Import all the models
 from .models import UsersModel
 from rest_framework import views, permissions, status
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAdminUser,IsAuthenticated
 from rest_framework.response import Response
 from django.http import HttpResponseForbidden
