@@ -96,7 +96,7 @@ Manage the Database Configs and Allowed Hosts base on Live_deploy Mode
 """
 if live_deploy == False:
     DEBUG = True
-    ALLOWED_HOSTS = ['*']
+    ALLOWED_HOSTS = ['*','http://13.246.166.173:9000']
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
