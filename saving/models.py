@@ -3,6 +3,8 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 import uuid
 from profiles.models import UsersModel
+from django.db.models.signals import post_save,pre_save
+from django.dispatch import receiver
 
 # check current balance
 def check_user_available_balance(user,wallet_type):
@@ -21,16 +23,21 @@ def check_user_available_balance(user,wallet_type):
     elif wallet_type == 2:
         return wallet.saving_wallet_balance
 #compute new balance
-def compute_new_user_balance(current_balance,compute_type):
+def compute_new_user_balance(current_balance,transaction_amount,compute_type):
     """
         Computes 
 
         Args:
-            user: The email of the user
-            wallet_type: Specify which wallet to return
+            current_balance: The current balance on account
+            transaction_amount: The amount to transacted
+            compute_type: One(1) for Credit and Two(2) for debit
         Returns:
-            Returns wallet balance
-    """    
+            Returns new balance
+    """  
+    if compute_type == 1:
+        return current_balance +  transaction_amount
+    elif compute_type == 2:
+        return current_balance -  transaction_amount
 #Transaction Type Model
 class transaction_types_model(models.Model):
     transaction_type_id=models.AutoField(primary_key=True)
@@ -162,6 +169,55 @@ class savings_target_model(models.Model):
             message =f' The Savings Target {self.savings_target_amount} should not be less than 0(zero).'
             raise ValidationError(message)
         
+# Receiver to update the wallet balance for every new transaction
+@receiver(pre_save,sender=transactions_model)
+def update_wallet_balance(sender,instance,**kwargs):
+    # Check if the record is just being created
+    if instance.transaction_id is None:
+        # Get the user_id from the wallet model
+        try:
+            wallet = wallet_model.objects.get(user=instance.user)
+            user=instance.user
+            current_wallet_balance=check_user_available_balance(user,1)
+        except wallet.DoesNotExist:
+            # WalletModel instance does not exist for user
+            return
+        # Handle the Deposits
+        if instance.transaction_type_name.transaction_type_name == 'Deposit':
+            new_balance=compute_new_user_balance(current_wallet_balance,instance.transaction_amount,1)
+            wallet.active_wallet_balance = new_balance
+            wallet.save()
+        # handle the withdraws
+        elif instance.transaction_type_name.transaction_type_name == 'Withdraw':
+            new_balance=compute_new_user_balance(current_wallet_balance,instance.transaction_amount,2)
+            # wallet.active_wallet_balance -= instance.transaction_amount
+            wallet.active_wallet_balance = new_balance
+            wallet.save()
+        # handle the send money
+        elif instance.transaction_type_name.transaction_type_name == 'Send':
+            new_balance=compute_new_user_balance(current_wallet_balance,instance.transaction_amount,2)
+            wallet.active_wallet_balance = new_balance
+            wallet.save()
+    else:
+        print("Updating Transaction")
+# Receiver to update the transaction for every new transaction
+@receiver(pre_save,sender=transactions_model)
+def update_transaction_counter(sender,instance,**kwargs):
+    # Check if the record is just being created
+    if instance.transaction_id is None:
+        user=instance.user
+        # transaction_counter = transactions_counter_model.objects.get(user=user,transaction_type_name = instance.transaction_type_name)
+        # Get or create the transaction counter based on user and transaction type
+        transaction_counter, created = transactions_counter_model.objects.get_or_create(user=user, transaction_type_name=instance.transaction_type_name)
+        # If the record was just created, set the initial counter value 
+        if created:
+            transaction_counter.transaction_counter =1
+        else:
+            # Update the transaction counter
+            transaction_counter.transaction_counter += 1
+        transaction_counter.save()
+    else:
+        print("Updating Transaction")      
 
 
         
