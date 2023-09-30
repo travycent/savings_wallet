@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -6,6 +7,58 @@ from profiles.models import UsersModel
 from django.db.models.signals import post_save,pre_save
 from django.dispatch import receiver
 
+# check if transaction has reached
+def check_transaction_counter_limit(frequency,transaction_counter):
+    """
+        Returns the User's Active Savings Preference
+
+        Args:
+            frequency: The times until a deduction is done
+            transaction_counter: Total number of transactions
+        Returns:
+            Returns bool
+    """
+    if frequency == transaction_counter:
+        return True
+    else: 
+        return False
+# Get Savings Preference
+def get_user_active_saving_preference(user,transaction_type):
+    """
+        Returns the User's Active Savings Preference
+
+        Args:
+            user: The email of the user
+            transaction_type: Specify which transaction type to return
+        Returns:
+            Returns savings preference
+    """
+    active_status : str = "Active"
+    try:
+        preference = savings_preference_model.objects.get(user=user, transaction_type_name=transaction_type, savings_preference_status=active_status)
+        return preference
+    except ObjectDoesNotExist:
+        # Handle the case when no matching record is found
+        print(f"No active savings preference found for user {user} and transaction type {transaction_type}")
+        return None
+# Get Transaction Counter
+def get_user_transactions_counter(user,transaction_type):
+    """
+        Returns the User's Transaction Counters
+
+        Args:
+            user: The email of the user
+            transaction_type: Specify which transaction type to return
+        Returns:
+            Returns transaction counter
+    """
+    try:
+        transaction_counter = transactions_counter_model.objects.get(user=user, transaction_type_name=transaction_type)
+        return transaction_counter
+    except ObjectDoesNotExist:
+        # Handle the case when no matching record is found
+        print(f"No transaction counter found for user {user} and transaction type {transaction_type}")
+        return None
 # check current balance
 def check_user_available_balance(user,wallet_type):
     """
@@ -86,6 +139,10 @@ class wallet_model(models.Model):
         return self.user.get_full_name() 
 # Saving Preferences Model
 class savings_preference_model(models.Model):
+    STATUS_CHOICES = (
+        ("Closed", "Closed"),
+        ("Active", "Active"),
+    )
     saving_preference_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     transaction_type_name=models.ForeignKey(transaction_types_model,on_delete=models.SET_NULL,blank=True,null=True)
@@ -93,6 +150,7 @@ class savings_preference_model(models.Model):
     frequency=models.ForeignKey(frequency_model,on_delete=models.SET_NULL,blank=True,null=True)
     savings_preference_start_date= models.DateField()
     savings_preference_end_date= models.DateField()
+    savings_preference_status=models.CharField(default="Closed",max_length=10, choices=STATUS_CHOICES)
     preference_update_date= models.DateTimeField(auto_now_add=True) 
     class Meta:
         verbose_name_plural = "Saving Preferences"
@@ -200,7 +258,39 @@ def update_wallet_balance(sender,instance,**kwargs):
             wallet.save()
     else:
         print("Updating Transaction")
-# Receiver to update the transaction for every new transaction
+# Receiver to update the savings wallet for every new transaction 
+@receiver(pre_save,sender=transactions_model)
+def update_savings_wallet_balance(sender,instance,**kwargs):
+    # Check if the record is just being created
+    if instance.transaction_id is None:
+        try:
+            wallet = wallet_model.objects.get(user=instance.user)
+            user=instance.user
+            current_wallet_balance=check_user_available_balance(user,2)
+        except wallet.DoesNotExist:
+            # WalletModel instance does not exist for user
+            return
+        # Handle the Deposits
+        if instance.transaction_type_name.transaction_type_name == 'Deposit':
+            savings_preference = get_user_active_saving_preference(user,instance.transaction_type_name)
+            transactions_counter = get_user_transactions_counter(user,instance.transaction_type_name)
+            if savings_preference is not None:
+                if transactions_counter is not None:
+                    frequency = savings_preference.frequency
+                    counter = transactions_counter.transaction_counter
+                    isDeductMoney=check_transaction_counter_limit(frequency,counter)
+                    if isDeductMoney:
+                        pass
+            new_balance=compute_new_user_balance(current_wallet_balance,instance.transaction_amount,1)
+            wallet.active_wallet_balance = new_balance
+            wallet.save()
+    else:
+        print("Updating Transaction")
+        
+        
+        
+        
+# Receiver to update the transaction counter for every new transaction
 @receiver(pre_save,sender=transactions_model)
 def update_transaction_counter(sender,instance,**kwargs):
     # Check if the record is just being created
@@ -217,7 +307,8 @@ def update_transaction_counter(sender,instance,**kwargs):
             transaction_counter.transaction_counter += 1
         transaction_counter.save()
     else:
-        print("Updating Transaction")      
+        print("Updating Transaction")  
+   
 
 
         
