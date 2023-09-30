@@ -2,7 +2,7 @@
     Used to serialize the application data
 """
 from rest_framework import serializers
-from .models import transaction_types_model,percentage_limits_model,frequency_model,wallet_model,savings_preference_model,transactions_model,savings_target_model
+from .models import transaction_types_model,percentage_limits_model,frequency_model,wallet_model,savings_preference_model,transactions_model,savings_target_model,billers_model
 from profiles.models import UsersModel
 #Transaction Types Serializer
 class TransactionTypeSerializer(serializers.ModelSerializer):
@@ -11,6 +11,17 @@ class TransactionTypeSerializer(serializers.ModelSerializer):
         fields = ('transaction_type_id', 'transaction_type_name','created_on')
         transaction_type_id = serializers.IntegerField()
         transaction_type_name = serializers.CharField(max_length=10)
+        def create(self, validated_data):
+            instance=self.Meta.model(**validated_data)
+            instance.save()
+            return instance
+#Billers Types Serializer
+class BillersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = billers_model
+        fields = ('biller_id', 'biller','created_on')
+        biller_id = serializers.IntegerField()
+        biller = serializers.CharField(max_length=10)
         def create(self, validated_data):
             instance=self.Meta.model(**validated_data)
             instance.save()

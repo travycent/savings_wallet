@@ -1,6 +1,6 @@
 from django.contrib import admin
 # Register your models here.
-from .models import transaction_types_model,percentage_limits_model,wallet_model,frequency_model,savings_preference_model,transactions_model,transactions_counter_model,savings_target_model
+from .models import transaction_types_model,percentage_limits_model,wallet_model,frequency_model,savings_preference_model,transactions_model,transactions_counter_model,savings_target_model,billers_model
 #Create Display Model Admin
 class transactionTypesAdmin(admin.ModelAdmin):
     #Specify data to be displayed in the list
@@ -23,6 +23,14 @@ class frequencyAdmin(admin.ModelAdmin):
     list_display =('frequency','created_on')
     # Search Data
     search_fields = ('frequency',)
+    # Filter Data
+    list_filter = ('created_on',)
+# Billers Admin
+class billersAdmin(admin.ModelAdmin):
+    #Specify data to be displayed in the list
+    list_display =('biller','created_on')
+    # Search Data
+    search_fields = ('biller',)
     # Filter Data
     list_filter = ('created_on',)
 # User Wallets
@@ -121,5 +129,6 @@ admin.site.register(savings_preference_model,savingsPreferenceAdmin)
 admin.site.register(transactions_model,transactionsAdmin)
 admin.site.register(transactions_counter_model,transactionsCounterAdmin)
 admin.site.register(savings_target_model,savingsTargetAdmin)
+admin.site.register(billers_model,billersAdmin)
     
 

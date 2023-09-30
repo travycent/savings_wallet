@@ -129,6 +129,15 @@ class frequency_model(models.Model):
             raise ValidationError("Frequency should not be less than zero(0).")
     def __str__(self):
         return str(self.frequency)
+# Billers model
+class billers_model(models.Model):
+    biller_id = models.AutoField(primary_key=True)
+    biller = models.CharField(unique=True,max_length=12)
+    created_on = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        verbose_name_plural = "Billers"
+    def __str__(self):
+        return str(self.biller)
 # Savings Wallet Model
 class wallet_model(models.Model):
     wallet_id = models.AutoField(primary_key=True)
