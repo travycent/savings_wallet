@@ -26,7 +26,7 @@ jobs:
             docker-compose --version
 
             # Pull the latest changes from the repository
-            git pull origin main
+            git pull -X theirs origin main
 
             # Stop and remove existing containers
             docker-compose down
