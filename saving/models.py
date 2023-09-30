@@ -279,6 +279,7 @@ def update_savings_wallet_balance(sender,instance,**kwargs):
         # Handle the Deposits
         savings_preference = get_user_active_saving_preference(user,instance.transaction_type_name)
         transactions_counter = get_user_transactions_counter(user,instance.transaction_type_name)
+        savings_wallet_transaction_type = transaction_types_model.objects.get(transaction_type_name="Save Wallet")
         if savings_preference is not None:
             if transactions_counter is not None:
                 frequency = savings_preference.frequency.frequency
@@ -300,6 +301,10 @@ def update_savings_wallet_balance(sender,instance,**kwargs):
                             wallet.save()
                             transactions_counter.transaction_counter = 0
                             transactions_counter.save()
+                            # Create a new transaction instance and save it to the database
+                            new_transaction = transactions_model(user=user, transaction_amount=totalAmountTobeDeducted, transaction_type_name=savings_wallet_transaction_type)
+                            print(savings_wallet_transaction_type)
+                            new_transaction.save()
                             
                         except Exception as e:
                             # Handle exceptions and rollback the transaction if an error occurs
