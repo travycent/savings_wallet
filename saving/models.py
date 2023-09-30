@@ -1,3 +1,4 @@
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.conf import settings
@@ -18,9 +19,12 @@ def check_transaction_counter_limit(frequency,transaction_counter):
         Returns:
             Returns bool
     """
-    if frequency == transaction_counter:
+    print(frequency)
+    if transaction_counter >= frequency:
+        print("It is an matches ")
         return True
     else: 
+        print("It does not matches ")
         return False
 # Get Savings Preference
 def get_user_active_saving_preference(user,transaction_type):
@@ -94,7 +98,7 @@ def compute_new_user_balance(current_balance,transaction_amount,compute_type):
 #Transaction Type Model
 class transaction_types_model(models.Model):
     transaction_type_id=models.AutoField(primary_key=True)
-    transaction_type_name=models.CharField(unique=True,max_length=10)
+    transaction_type_name=models.CharField(unique=True,max_length=12)
     created_on= models.DateTimeField(auto_now_add=True)
     class Meta:
         verbose_name_plural = 'Transaction Types'
@@ -266,24 +270,40 @@ def update_savings_wallet_balance(sender,instance,**kwargs):
         try:
             wallet = wallet_model.objects.get(user=instance.user)
             user=instance.user
-            current_wallet_balance=check_user_available_balance(user,2)
+            current_wallet_balance=check_user_available_balance(user,1)
+            current_savings_wallet_balance=check_user_available_balance(user,2)
+            transaction_amount=instance.transaction_amount
         except wallet.DoesNotExist:
             # WalletModel instance does not exist for user
             return
         # Handle the Deposits
-        if instance.transaction_type_name.transaction_type_name == 'Deposit':
-            savings_preference = get_user_active_saving_preference(user,instance.transaction_type_name)
-            transactions_counter = get_user_transactions_counter(user,instance.transaction_type_name)
-            if savings_preference is not None:
-                if transactions_counter is not None:
-                    frequency = savings_preference.frequency
-                    counter = transactions_counter.transaction_counter
-                    isDeductMoney=check_transaction_counter_limit(frequency,counter)
-                    if isDeductMoney:
-                        pass
-            new_balance=compute_new_user_balance(current_wallet_balance,instance.transaction_amount,1)
-            wallet.active_wallet_balance = new_balance
-            wallet.save()
+        savings_preference = get_user_active_saving_preference(user,instance.transaction_type_name)
+        transactions_counter = get_user_transactions_counter(user,instance.transaction_type_name)
+        if savings_preference is not None:
+            if transactions_counter is not None:
+                frequency = savings_preference.frequency.frequency
+                # print(frequency)
+                counter = transactions_counter.transaction_counter
+                percentage=savings_preference.percentage.percentage
+                isDeductMoney=check_transaction_counter_limit(frequency,counter)
+                if isDeductMoney:
+                    # compute amount to be deducted
+                    totalAmountTobeDeducted=int((float)(transaction_amount)*percentage/100)
+                    new_balance=compute_new_user_balance(current_wallet_balance,totalAmountTobeDeducted,2)
+                    new_savings_balance=compute_new_user_balance(current_savings_wallet_balance,totalAmountTobeDeducted,1)
+                    # Ensure new balance is not negative
+                    if new_balance > 0:
+                        try:
+                            # deduct
+                            wallet.active_wallet_balance = new_balance
+                            wallet.saving_wallet_balance = new_savings_balance
+                            wallet.save()
+                            transactions_counter.transaction_counter = 0
+                            transactions_counter.save()
+                            
+                        except Exception as e:
+                            # Handle exceptions and rollback the transaction if an error occurs
+                            print(f"Error: {e}")
     else:
         print("Updating Transaction")
         
