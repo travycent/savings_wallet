@@ -4,10 +4,12 @@ from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
 import uuid
+from django.contrib.auth import get_user_model
 from profiles.models import UsersModel
 from django.db.models.signals import post_save,pre_save
 from django.dispatch import receiver
-
+# Get the User Model and Store it
+User = get_user_model()
 # check if transaction has reached
 def check_transaction_counter_limit(frequency,transaction_counter):
     """
@@ -19,12 +21,9 @@ def check_transaction_counter_limit(frequency,transaction_counter):
         Returns:
             Returns bool
     """
-    print(frequency)
     if transaction_counter >= frequency:
-        print("It is an matches ")
         return True
     else: 
-        print("It does not matches ")
         return False
 # Get Savings Preference
 def get_user_active_saving_preference(user,transaction_type):
@@ -79,6 +78,31 @@ def check_user_available_balance(user,wallet_type):
         return wallet.active_wallet_balance
     elif wallet_type == 2:
         return wallet.saving_wallet_balance
+#ensure the available balance can do balance
+def check_sufficient_funds(user,transaction_type,transaction_amount):
+    """
+        Returns the User's ability to transact
+
+        Args:
+            user: The email of the user
+            transaction_type: Specify which transaction type to return
+            transaction_amount: The amount to be checked
+        Returns:
+            Returns bool
+    """
+    # Check Current Balance
+    savings_balance=check_user_available_balance(user,1)
+    # Deduct the transaction amount
+    savings_balance = savings_balance - transaction_amount
+    transaction_type_name = transaction_types_model.objects.get(transaction_type_id=transaction_type)
+    transaction_type = transaction_type_name.transaction_type_name
+    if transaction_type.lower() == "send" or transaction_type.lower() == "pay bill" or transaction_type.lower() == "withdraw": 
+        if savings_balance >= 0:
+            return True
+        else: 
+            return False 
+    else:
+        return True
 #compute new balance
 def compute_new_user_balance(current_balance,transaction_amount,compute_type):
     """
@@ -187,20 +211,18 @@ class transactions_model(models.Model):
     def clean(self):
         # Check for for the transaction type
         if self.transaction_type_name is not None:
-            # Handle the Send
+            # Check Current Balance
+            check_balance=check_sufficient_funds(self.user,self.transaction_type_name.transaction_type_id,self.transaction_amount)
+            if check_balance:
+                pass
+            else:
+                message ='You have insufficient funds to complete the transaction'
+                raise ValidationError(message)
             if self.transaction_type_name.transaction_type_name.lower() == "send":
                 # check if they are sending to a valid customer
                 user_data=UsersModel.objects.filter(email=self.payee).first()
                 if user_data is not None:
-                    # Check Current Balance
-                    savings_balance=check_user_available_balance(self.user,1)
-                    if savings_balance > self.transaction_amount:
-                        raise ValidationError("proceed")
-                        # Enough money to complete transaction
-                        
-                    else:
-                        message ='You have insufficient funds to complete the transaction'
-                        raise ValidationError(message)
+                    pass
                 else:
                     message =f' The user {self.payee} does not exist in any of our records.'
                     raise ValidationError(message)
@@ -269,6 +291,21 @@ def update_wallet_balance(sender,instance,**kwargs):
             new_balance=compute_new_user_balance(current_wallet_balance,instance.transaction_amount,2)
             wallet.active_wallet_balance = new_balance
             wallet.save()
+            # Get UserId
+            payee_user = User.objects.filter(email=instance.payee).first()
+            # Get payee wallet and update it
+            payee_wallet = wallet_model.objects.get(user=payee_user.id)
+            current_payee_balance=check_user_available_balance(payee_user,1)
+            wallet_type = "active"
+            if wallet_type == "active":
+                new_payee_balance=compute_new_user_balance(current_payee_balance,instance.transaction_amount,1)
+                payee_wallet.active_wallet_balance = new_payee_balance
+                payee_wallet.save()
+        # handle the send money
+        elif instance.transaction_type_name.transaction_type_name == 'Pay Bill':
+            new_balance=compute_new_user_balance(current_wallet_balance,instance.transaction_amount,2)
+            wallet.active_wallet_balance = new_balance
+            wallet.save()
     else:
         print("Updating Transaction")
 # Receiver to update the savings wallet for every new transaction 
@@ -312,7 +349,7 @@ def update_savings_wallet_balance(sender,instance,**kwargs):
                             transactions_counter.save()
                             # Create a new transaction instance and save it to the database
                             new_transaction = transactions_model(user=user, transaction_amount=totalAmountTobeDeducted, transaction_type_name=savings_wallet_transaction_type)
-                            print(savings_wallet_transaction_type)
+                            # print(savings_wallet_transaction_type)
                             new_transaction.save()
                             
                         except Exception as e:

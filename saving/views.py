@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import transaction_types_model,percentage_limits_model,frequency_model,wallet_model,savings_preference_model,transactions_model,savings_target_model,billers_model
+from .models import transaction_types_model,percentage_limits_model,frequency_model,wallet_model,savings_preference_model,transactions_model,savings_target_model,billers_model,check_sufficient_funds
 from .import serializers 
 from rest_framework import status
 from rest_framework.response import Response
@@ -7,6 +7,9 @@ from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from profiles.auth_backend import CustomAuthBackend
 from core import functions
+from django.contrib.auth import get_user_model
+# Get the User Model and Store it
+User = get_user_model()
 
 # Instantiate the CustomAuthBackend to use its methods
 custom_backend = CustomAuthBackend()
@@ -415,26 +418,63 @@ def create_customer_transaction(request,userId=""):
         # Extract Fields
         transaction_amount = functions.is_empty(request.data.get('transaction_amount'),"transaction_amount") and functions.is_float(request.data.get('transaction_amount'),"transaction_amount")
         transaction_type_name = functions.is_empty(request.data.get('transaction_type_name'),"transaction_type_name") and functions.is_int(request.data.get('transaction_type_name'),"transaction_type_name")
-        payee = request.data.get('payee')   
+        payee = request.data.get('payee')
+        # Check Current Balance
+        check_balance=check_sufficient_funds(user,transaction_type_name,transaction_amount)
+        if not check_balance:
+            status_code = status.HTTP_400_BAD_REQUEST
+            message = "You have insufficient funds to complete the transaction"
+            response = {
+                'success': False,
+                'status_code': status_code,
+                'message': message,
+            }
+            return Response(response,status=status_code)
+        # Continue with the transaction 
         data = {
             'user': user,
             'transaction_amount': transaction_amount,
             'transaction_type_name': transaction_type_name,
             'payee' : payee,
         }
-        item=serializers.UserTransactionSerializer(data=data)
-        if item.is_valid():
+        if payee is not None and payee != "":
+            # Get UserId
+            payee_user = User.objects.filter(email=payee).first()
+            if payee_user is not None:
+                item=serializers.UserTransactionSerializer(data=data)
+                if item.is_valid():
 
-            new_item=item.save()
-            if new_item:
-                status_code = status.HTTP_201_CREATED
+                    new_item=item.save()
+                    if new_item:
+                        status_code = status.HTTP_201_CREATED
+                        response = {
+                            'success' : 'True',
+                            'status_code' : status_code,
+                            'message': 'Record Created successfully',
+                        }
+                        return Response(response,status=status_code) 
+            else:
+                status_code = status.HTTP_400_BAD_REQUEST
+                message = "Customer with email: {} does not exist".format(str(payee))
                 response = {
-                    'success' : 'True',
-                    'status_code' : status_code,
-                    'message': 'Record Created successfully',
+                    'success': False,
+                    'status_code': status_code,
+                    'message': message,
                 }
-                return Response(response,status=status_code) 
-        
+                return Response(response,status=status_code)
+        else:
+            item=serializers.UserTransactionSerializer(data=data)
+            if item.is_valid():
+
+                new_item=item.save()
+                if new_item:
+                    status_code = status.HTTP_201_CREATED
+                    response = {
+                        'success' : 'True',
+                        'status_code' : status_code,
+                        'message': 'Record Created successfully',
+                    }
+                    return Response(response,status=status_code)        
     except Exception as e:
         status_code = status.HTTP_400_BAD_REQUEST
         message = "Sorry, there was an error: {}".format(str(e))
