@@ -41,6 +41,6 @@ jobs:
             docker-compose up -d
 
             # Optional: Run database migrations or other setup tasks
-            # docker-compose exec web python manage.py migrate
+            docker-compose exec web python manage.py migrate
 
             echo 'Deployment successful'
