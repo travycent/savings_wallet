@@ -8,11 +8,15 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Run migrations 
+RUN python manage.py migrate
+
+# Run collectstatic 
+RUN python manage.py collectstatic --noinput
 # Copy the application code
 COPY . .
 
-# Run migrations 
-RUN python manage.py migrate
+
 
 # Expose the port the app will run on
 EXPOSE 9000
