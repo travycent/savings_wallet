@@ -8,14 +8,14 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+
+# Copy the application code
+COPY . .
 # Run migrations 
 RUN python manage.py migrate
 
 # Run collectstatic 
 RUN python manage.py collectstatic --noinput
-# Copy the application code
-COPY . .
-
 
 
 # Expose the port the app will run on
