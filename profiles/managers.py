@@ -37,4 +37,3 @@ class CustomUserManager(BaseUserManager):
         Creates super user object .
         """
         return self.create_user(email, first_name, last_name, phone_number, password, **extra_fields)
-    

@@ -12,6 +12,7 @@ class UsersModel(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     phone_number = PhoneNumberField(unique=True)
+    nin = models.CharField(unique=True,max_length=30,blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
@@ -32,6 +33,8 @@ class UsersModel(AbstractBaseUser, PermissionsMixin):
     def get_short_name(self):
         return self.first_name
     def save(self, *args, **kwargs):
+        print("Reached Here {}",self.password)
         if self.password:
             self.password = make_password(self.password)
+        print("Reached Here new password {}",self.password)
         super().save(*args, **kwargs)
