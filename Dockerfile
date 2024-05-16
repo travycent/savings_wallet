@@ -11,5 +11,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the application code
 COPY . .
 
+# Run migrations 
+RUN python manage.py migrate
+
 # Expose the port the app will run on
 EXPOSE 9000
