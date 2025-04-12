@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        
+
       - name: Deploy to Prod
         uses: appleboy/ssh-action@master
         with:
@@ -24,9 +24,6 @@ jobs:
 
             # Ensure Docker Compose is installed
             docker-compose --version
-
-            # Remove Sqlite
-            rm db.sqlite3
 
             # Pull the latest changes from the repository
             git pull origin main
