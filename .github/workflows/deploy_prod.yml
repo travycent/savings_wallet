@@ -23,7 +23,7 @@ jobs:
           EC2_SSH_PRIVATE_KEY_PROD: ${{ secrets.EC2_SSH_PRIVATE_KEY_PROD }}
 
       - name: Deploy to Prod
-        uses: appleboy/ssh-action@v0.1.2
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST_DNS_PROD }}
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY_PROD }}
