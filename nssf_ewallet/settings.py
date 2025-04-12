@@ -192,6 +192,6 @@ SPECTACULAR_SETTINGS = {
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-CSRF_TRUSTED_ORIGINS = ['*']
+
 # Django Cors
 CORS_ORIGIN_ALLOW_ALL = True
