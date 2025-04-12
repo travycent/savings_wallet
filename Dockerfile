@@ -19,4 +19,4 @@ RUN python manage.py collectstatic --noinput
 
 
 # Expose the port the app will run on
-EXPOSE 9000
+EXPOSE 7000
