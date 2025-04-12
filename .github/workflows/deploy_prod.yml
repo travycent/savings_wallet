@@ -20,7 +20,7 @@ jobs:
           username: ${{ secrets.USERNAME_PROD }}
           script: |
             # Navigate to the project directory
-            cd ~/my_app/savings_wallet
+            cd ~/savings_wallet
 
             # Ensure Docker Compose is installed
             docker-compose --version
