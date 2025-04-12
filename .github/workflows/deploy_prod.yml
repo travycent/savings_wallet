@@ -11,17 +11,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Debug Secrets
-        run: |
-          echo "HOST_DNS_PROD is set to: ${HOST_DNS_PROD:0:3}***"
-          echo "USERNAME_PROD is set to: ${USERNAME_PROD:0:3}***"
-          echo "EC2_SSH_PRIVATE_KEY_PROD is set (masked)"
-        env:
-          HOST_DNS_PROD: ${{ secrets.HOST_DNS_PROD }}
-          USERNAME_PROD: ${{ secrets.USERNAME_PROD }}
-          EC2_SSH_PRIVATE_KEY_PROD: ${{ secrets.EC2_SSH_PRIVATE_KEY_PROD }}
-
+        
       - name: Deploy to Prod
         uses: appleboy/ssh-action@master
         with:
@@ -45,7 +35,7 @@ jobs:
             docker-compose down
 
             # Forcefully remove all Docker images
-            docker rmi -f $(docker images -q)
+            #docker rmi -f $(docker images -q)
 
             # Build and start the containers
             docker-compose up -d

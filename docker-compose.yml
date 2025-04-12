@@ -3,13 +3,13 @@ version: '3.9'
 services:
   web:
     build: .
-    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:9000"
+    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:7000"
     volumes:
       - .:/app
   nginx:
     image: nginx:alpine
     ports:
-      - "9000:80"
+      - "7000:80"
     volumes:
       - ./nginx-config:/etc/nginx/conf.d
     depends_on:
