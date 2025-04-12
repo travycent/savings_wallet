@@ -100,7 +100,7 @@ Manage the Database Configs and Allowed Hosts base on Live_deploy Mode
 """
 if live_deploy == False:
     DEBUG = True
-    ALLOWED_HOSTS = ['*','http://13.246.166.173:9000']
+    ALLOWED_HOSTS = ['*']
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -192,6 +192,6 @@ SPECTACULAR_SETTINGS = {
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-CSRF_TRUSTED_ORIGINS = ['http://13.246.166.173:9000']
+CSRF_TRUSTED_ORIGINS = ['*']
 # Django Cors
 CORS_ORIGIN_ALLOW_ALL = True
